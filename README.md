@@ -559,7 +559,7 @@ npm run create-admin -- "<Name>" <email> <password>
 npm run create-admin -- Admin admin@splitsense.com Secret@123
 
 # Create an admin with a full name (use quotes)
-npm run create-admin -- "Baran Dharshan" baran@example.com MyP@ssword1
+npm run create-admin -- "Parani Dharshan" Parani@example.com MyP@ssword1
 
 # Alternative: Run the script directly with Node
 node scripts/create-admin.js "System Admin" admin@site.com Pass1234
@@ -570,8 +570,8 @@ node scripts/create-admin.js "System Admin" admin@site.com Pass1234
 ```
   ✔ New admin user created successfully.
 
-  Name:   Baran Dharshan
-  Email:  baran@example.com
+  Name:   Parani Dharshan
+  Email:  parani@example.com
   Role:   admin
   ID:     663f...
 ```
