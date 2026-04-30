@@ -283,7 +283,7 @@ const getExpenseSummary = async (req, res, next) => {
       }
     }
 
-    const [totals, categoryBreakdown, monthlyTrend, settledBack] = await Promise.all([
+    const [totals, categoryBreakdown, monthlyTrend, settledBack, paidToOthers] = await Promise.all([
       Expense.aggregate([
         { $match: match },
         { $group: { _id: null, totalSpend: { $sum: "$amount" }, count: { $sum: 1 } } },
@@ -344,14 +344,42 @@ const getExpenseSummary = async (req, res, next) => {
           },
         },
       ]),
+      // Calculate total paid by the user to others for shared expenses
+      Expense.aggregate([
+        { 
+          $match: { 
+            isDeleted: { $ne: true }, 
+            isShared: true,
+            owner: { $ne: new mongoose.Types.ObjectId(req.user._id) },
+            ...(match.date ? { date: match.date } : {})
+          } 
+        },
+        { $unwind: "$splitDetails" },
+        {
+          $match: {
+            "splitDetails.isSettled": true,
+            "splitDetails.owedBy": new mongoose.Types.ObjectId(req.user._id),
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalPaidToOthers: { $sum: "$splitDetails.amountOwed" },
+            count: { $sum: 1 }
+          },
+        },
+      ]),
     ]);
 
     const grossSpend = totals.length > 0 ? totals[0].totalSpend : 0;
-    const totalCount = totals.length > 0 ? totals[0].count : 0;
+    const baseCount = totals.length > 0 ? totals[0].count : 0;
     const totalSettledBack = settledBack.length > 0 ? settledBack[0].totalSettledBack : 0;
+    const totalPaidToOthers = paidToOthers.length > 0 ? paidToOthers[0].totalPaidToOthers : 0;
+    const paidToOthersCount = paidToOthers.length > 0 ? paidToOthers[0].count : 0;
 
-    // Net spend = gross spend minus what friends have settled back to you
-    const totalSpend = Number((grossSpend - totalSettledBack).toFixed(2));
+    // Net spend = gross spend minus what friends have settled back to you PLUS what you paid to others
+    const totalSpend = Number((grossSpend - totalSettledBack + totalPaidToOthers).toFixed(2));
+    const totalCount = baseCount + paidToOthersCount;
 
     return successResponse(
       res,
