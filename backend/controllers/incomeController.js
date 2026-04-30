@@ -197,6 +197,18 @@ const deleteIncome = async (req, res, next) => {
   }
 };
 
+const deleteAllIncomes = async (req, res, next) => {
+  try {
+    const incomes = await Income.find({ owner: req.user._id });
+    for (const income of incomes) {
+      await income.deleteOne();
+    }
+    return successResponse(res, 200, null, "All incomes deleted successfully");
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const getIncomeSummary = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
@@ -286,5 +298,6 @@ module.exports = {
   getIncomeById,
   updateIncome,
   deleteIncome,
+  deleteAllIncomes,
   getIncomeSummary,
 };

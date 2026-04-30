@@ -26,6 +26,11 @@ export const deleteIncome = async (id) => {
   return data;
 };
 
+export const deleteAllIncomes = async () => {
+  const { data } = await api.delete("/income/all");
+  return data;
+};
+
 export const getIncomeSummary = async (params = {}) => {
   const { data } = await api.get("/income/summary", { params });
   return data;

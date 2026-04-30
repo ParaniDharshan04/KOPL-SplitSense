@@ -7,6 +7,7 @@ const {
   getExpenseById,
   updateExpense,
   deleteExpense,
+  deleteAllExpenses,
   getExpenseSummary,
   createSharedExpense,
   getOwedToMe,
@@ -61,6 +62,7 @@ router.get("/balances", getBalances);
 
 router.get("/:id", getExpenseById);
 router.put("/:id", baseExpenseValidators, validateRequest, updateExpense);
+router.delete("/all", deleteAllExpenses);
 router.delete("/:id", deleteExpense);
 
 module.exports = router;

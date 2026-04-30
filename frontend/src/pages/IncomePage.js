@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useIncomes } from "../context/IncomeContext";
-import { deleteIncome } from "../services/incomeService";
+import { deleteIncome, deleteAllIncomes } from "../services/incomeService";
 import { parseApiError } from "../services/api";
 import { formatCurrency, formatDate } from "../utils/format";
 
@@ -46,6 +46,22 @@ const IncomePage = () => {
     }
   };
 
+  const onDeleteAll = async () => {
+    if (!window.confirm("Are you sure you want to delete all income records? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await deleteAllIncomes();
+      toast.success("All incomes deleted successfully");
+      loadIncomes();
+    } catch (error) {
+      toast.error(parseApiError(error));
+      setLoading(false);
+    }
+  };
+
   const onFilterChange = (event) => {
     const { name, value } = event.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -67,10 +83,18 @@ const IncomePage = () => {
           <h1 className="page-title">Income</h1>
           <p className="page-subtitle">Manage and track all your income sources</p>
         </div>
-        <Link className="btn admin-add-btn" to="/income/new">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New Income
-        </Link>
+        <div style={{ display: "flex", gap: "10px" }}>
+          {incomes.length > 0 && (
+            <button className="btn admin-add-btn" onClick={onDeleteAll} style={{ background: "var(--danger, #ef4444)", borderColor: "var(--danger, #ef4444)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              Delete All
+            </button>
+          )}
+          <Link className="btn admin-add-btn" to="/income/new">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Income
+          </Link>
+        </div>
       </div>
 
       {/* Filter Bar */}

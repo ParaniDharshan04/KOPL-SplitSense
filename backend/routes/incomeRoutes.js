@@ -7,6 +7,7 @@ const {
   getIncomeById,
   updateIncome,
   deleteIncome,
+  deleteAllIncomes,
   getIncomeSummary,
 } = require("../controllers/incomeController");
 const { protect } = require("../middleware/authMiddleware");
@@ -39,6 +40,7 @@ router.get("/", getIncomes);
 
 router.get("/:id", getIncomeById);
 router.put("/:id", baseIncomeValidators, validateRequest, updateIncome);
+router.delete("/all", deleteAllIncomes);
 router.delete("/:id", deleteIncome);
 
 module.exports = router;

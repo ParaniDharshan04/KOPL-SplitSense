@@ -31,6 +31,11 @@ export const deleteExpense = async (id) => {
   return data;
 };
 
+export const deleteAllExpenses = async () => {
+  const { data } = await api.delete("/expenses/all");
+  return data;
+};
+
 export const getSummary = async (params = {}) => {
   const { data } = await api.get("/expenses/summary", { params });
   return data;

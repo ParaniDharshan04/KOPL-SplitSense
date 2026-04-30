@@ -264,6 +264,43 @@ const deleteExpense = async (req, res, next) => {
   }
 };
 
+const deleteAllExpenses = async (req, res, next) => {
+  try {
+    const expenses = await Expense.find({ owner: req.user._id });
+
+    for (const expense of expenses) {
+      if (expense.isShared) {
+        const hasAnySettled = (expense.splitDetails || []).some((split) => split.isSettled);
+
+        if (hasAnySettled) {
+          const now = new Date();
+          expense.isDeleted = true;
+          expense.deletedAt = now;
+          expense.splitDetails = (expense.splitDetails || []).map((split) => {
+            if (!split.isSettled && !split.isCancelled) {
+              return {
+                ...split.toObject(),
+                isCancelled: true,
+                cancelledAt: now,
+              };
+            }
+            return split;
+          });
+          await expense.save();
+        } else {
+          await expense.deleteOne();
+        }
+      } else {
+        await expense.deleteOne();
+      }
+    }
+
+    return successResponse(res, 200, null, "All expenses deleted successfully");
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const getExpenseSummary = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
@@ -677,6 +714,7 @@ module.exports = {
   getExpenseById,
   updateExpense,
   deleteExpense,
+  deleteAllExpenses,
   getExpenseSummary,
   createSharedExpense,
   getOwedToMe,
