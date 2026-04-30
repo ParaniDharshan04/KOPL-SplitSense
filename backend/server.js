@@ -11,6 +11,7 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const settlementRoutes = require("./routes/settlementRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const incomeRoutes = require("./routes/incomeRoutes");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
 
 dotenv.config();
@@ -61,6 +62,7 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/settlements", settlementRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/income", incomeRoutes);
 
 // Unknown route handler in required API error shape.
 app.use(notFoundHandler);
