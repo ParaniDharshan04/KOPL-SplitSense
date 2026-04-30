@@ -42,6 +42,7 @@ Users can track personal expenses, create shared expenses with equal or custom s
 | **🔐 Authentication** | JWT access + refresh token flow with secure httpOnly cookie support |
 | **📊 Dashboard** | Real-time summary with charts (category breakdown, monthly trends via Recharts) |
 | **💳 Expense Management** | Full CRUD for personal expenses with category tagging and date filtering |
+| **💰 Income Tracking** | Full CRUD for income sources with categories to calculate net savings |
 | **👥 Bill Splitting** | Share expenses with other users using **equal** or **custom** split modes |
 | **⚖️ Balance Tracker** | View who owes you and who you owe — with one-click settlement |
 | **🔔 Notifications** | In-app notifications when someone shares an expense with you |
@@ -179,6 +180,7 @@ SplitSense/
 │   │   ├── adminController.js        # Admin dashboard & user management
 │   │   ├── authController.js         # Register, login, logout, refresh
 │   │   ├── expenseController.js      # CRUD + shared expenses + balances
+│   │   ├── incomeController.js       # Income CRUD & summary
 │   │   ├── notificationController.js # In-app notification management
 │   │   └── settlementController.js   # Debt settlement processing
 │   ├── middleware/
@@ -188,6 +190,7 @@ SplitSense/
 │   │   └── validateRequest.js        # express-validator integration
 │   ├── models/
 │   │   ├── Expense.js                # Expense schema with split details
+│   │   ├── Income.js                 # Income schema
 │   │   ├── Notification.js           # Notification schema
 │   │   ├── RefreshToken.js           # Refresh token persistence
 │   │   ├── Settlement.js             # Settlement records
@@ -196,6 +199,7 @@ SplitSense/
 │   │   ├── adminRoutes.js            # GET /api/admin/*
 │   │   ├── authRoutes.js             # POST /api/auth/*
 │   │   ├── expenseRoutes.js          # CRUD /api/expenses/*
+│   │   ├── incomeRoutes.js           # CRUD /api/income/*
 │   │   ├── notificationRoutes.js     # GET /api/notifications/*
 │   │   └── settlementRoutes.js       # POST /api/settlements/*
 │   ├── scripts/
@@ -223,16 +227,20 @@ SplitSense/
 │   │   │   └── RoleRoute.js          # Role-based route guard
 │   │   ├── context/
 │   │   │   ├── AuthContext.js        # Authentication state management
-│   │   │   └── ExpenseContext.js     # Expense data state management
+│   │   │   ├── ExpenseContext.js     # Expense data state management
+│   │   │   └── IncomeContext.js      # Income data state management
 │   │   ├── pages/
 │   │   │   ├── AdminPage.js          # Admin dashboard with metrics
 │   │   │   ├── BalancesPage.js       # Who owes whom + settlements
 │   │   │   ├── DashboardPage.js      # Summary charts & stats
 │   │   │   ├── EditExpensePage.js    # Edit existing expense
+│   │   │   ├── EditIncomePage.js     # Edit existing income
 │   │   │   ├── ExpenseDetailPage.js  # Single expense view
 │   │   │   ├── ExpensesPage.js       # Expense list with filters
+│   │   │   ├── IncomePage.js         # Income list with filters
 │   │   │   ├── LoginPage.js          # User login form
 │   │   │   ├── NewExpensePage.js     # Create expense form
+│   │   │   ├── NewIncomePage.js      # Create income form
 │   │   │   ├── RegisterPage.js       # User registration form
 │   │   │   └── SharedPage.js         # Shared expenses view
 │   │   ├── services/
@@ -240,6 +248,7 @@ SplitSense/
 │   │   │   ├── api.js                # Axios instance with interceptors
 │   │   │   ├── authService.js        # Auth API calls
 │   │   │   ├── expenseService.js     # Expense API calls
+│   │   │   ├── incomeService.js      # Income API calls
 │   │   │   └── notificationService.js# Notification API calls
 │   │   ├── utils/
 │   │   │   └── format.js            # Currency & date formatters
@@ -282,13 +291,17 @@ SplitSense/
                        │   │ updatedAt: Date    │       │ readAt: Date     │
                        │   └────────────────────┘       │ createdAt: Date  │
                        │                                └──────────────────┘
-                       │   ┌────────────────────┐
-                       │   │   RefreshToken      │
-                       │   ├────────────────────┤
-                       └───┤ userId: Ref        │
-                           │ token: String      │
-                           │ expiresAt: Date    │
-                           └────────────────────┘
+                       │   ┌────────────────────┐       ┌──────────────────┐
+                       │   │   RefreshToken      │       │      Income      │
+                       │   ├────────────────────┤       ├──────────────────┤
+                       └───┤ userId: Ref        │       │ _id: ObjectId    │
+                           │ token: String      │       │ owner: Ref       │
+                           │ expiresAt: Date    │       │ title: String    │
+                           └────────────────────┘       │ amount: Number   │
+                                                        │ category: enum   │
+                                                        │ date: Date       │
+                                                        │ isDeleted: Bool  │
+                                                        └──────────────────┘
 ```
 
 ---
@@ -314,6 +327,17 @@ SplitSense/
 | `GET` | `/api/expenses/:id` | Get expense details | ✅ |
 | `PUT` | `/api/expenses/:id` | Update an expense | ✅ |
 | `DELETE` | `/api/expenses/:id` | Soft-delete an expense | ✅ |
+
+### Income
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/income` | List all personal incomes | ✅ |
+| `POST` | `/api/income` | Create a personal income | ✅ |
+| `GET` | `/api/income/summary` | Get income summary | ✅ |
+| `GET` | `/api/income/:id` | Get income details | ✅ |
+| `PUT` | `/api/income/:id` | Update an income | ✅ |
+| `DELETE` | `/api/income/:id` | Soft-delete an income | ✅ |
 
 ### Shared Expenses
 
