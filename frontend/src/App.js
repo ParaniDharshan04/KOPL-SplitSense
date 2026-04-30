@@ -15,6 +15,9 @@ import ExpenseDetailPage from "./pages/ExpenseDetailPage";
 import SharedPage from "./pages/SharedPage";
 import BalancesPage from "./pages/BalancesPage";
 import AdminPage from "./pages/AdminPage";
+import IncomePage from "./pages/IncomePage";
+import NewIncomePage from "./pages/NewIncomePage";
+import EditIncomePage from "./pages/EditIncomePage";
 
 function App() {
   return (
@@ -63,6 +66,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ExpenseDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/income"
+              element={
+                <ProtectedRoute>
+                  <IncomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/income/new"
+              element={
+                <ProtectedRoute>
+                  <NewIncomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/income/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <EditIncomePage />
                 </ProtectedRoute>
               }
             />

@@ -132,6 +132,7 @@ const Navbar = () => {
           <nav className="nav-links">
             <NavLink to="/dashboard">Dashboard</NavLink>
             <NavLink to="/expenses">Expenses</NavLink>
+            <NavLink to="/income">Income</NavLink>
             <NavLink to="/shared">Shared</NavLink>
             <NavLink to="/balances">Balances</NavLink>
             {user?.role === "admin" && <NavLink to="/admin">Admin</NavLink>}

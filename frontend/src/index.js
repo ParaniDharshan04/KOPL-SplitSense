@@ -8,6 +8,7 @@ import "./styles.css";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { ExpenseProvider } from "./context/ExpenseContext";
+import { IncomeProvider } from "./context/IncomeContext";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -17,8 +18,10 @@ root.render(
     <BrowserRouter>
       <AuthProvider>
         <ExpenseProvider>
-          <App />
-          <ToastContainer position="top-right" autoClose={2500} />
+          <IncomeProvider>
+            <App />
+            <ToastContainer position="top-right" autoClose={2500} />
+          </IncomeProvider>
         </ExpenseProvider>
       </AuthProvider>
     </BrowserRouter>
