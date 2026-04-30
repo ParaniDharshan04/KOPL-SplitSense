@@ -20,7 +20,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["share_created"],
+      enum: ["share_created", "reminder", "payment_received"],
       default: "share_created",
     },
     title: {

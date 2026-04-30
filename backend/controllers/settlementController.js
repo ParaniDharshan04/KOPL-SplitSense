@@ -2,6 +2,7 @@
 const mongoose = require("mongoose");
 const Expense = require("../models/Expense");
 const Settlement = require("../models/Settlement");
+const Notification = require("../models/Notification");
 const { successResponse, errorResponse } = require("../utils/apiResponse");
 
 const settleSplit = async (req, res, next) => {
@@ -49,6 +50,20 @@ const settleSplit = async (req, res, next) => {
       settledTo: expense.owner,
       amount: split.amountOwed,
       settledAt: split.settledAt,
+    });
+
+    const isOwnerSettling = currentUserId === ownerId;
+    const recipientId = isOwnerSettling ? split.owedBy : expense.owner;
+    
+    await Notification.create({
+      recipient: recipientId,
+      sender: req.user._id,
+      expense: expense._id,
+      type: "payment_received",
+      title: isOwnerSettling ? "Share marked as paid" : "Payment received",
+      message: isOwnerSettling 
+        ? `${req.user.name} marked your share of "${expense.title}" as paid.`
+        : `${req.user.name} paid their share for "${expense.title}".`
     });
 
     return successResponse(
