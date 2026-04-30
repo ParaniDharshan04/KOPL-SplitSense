@@ -20,13 +20,10 @@
 
 ## 📋 Table of Contents
 
-> **🧭 About** &nbsp;&middot;&nbsp; [Overview](#-overview) &nbsp;&middot;&nbsp; [Key Features](#-key-features) &nbsp;&middot;&nbsp; [Tech Stack](#-tech-stack)
->
-> **🏛️ Design** &nbsp;&middot;&nbsp; [Architecture](#-architecture) &nbsp;&middot;&nbsp; [Project Structure](#-project-structure) &nbsp;&middot;&nbsp; [Database Schema](#-database-schema) &nbsp;&middot;&nbsp; [API Reference](#-api-reference)
->
-> **🚀 Setup** &nbsp;&middot;&nbsp; [Prerequisites](#prerequisites) &nbsp;&middot;&nbsp; [Installation](#installation) &nbsp;&middot;&nbsp; [Environment Config](#environment-configuration) &nbsp;&middot;&nbsp; [Run the App](#running-the-application) &nbsp;&middot;&nbsp; [Admin Setup](#setting-up-admin-access)
->
-> **📌 More** &nbsp;&middot;&nbsp; [Security](#-security) &nbsp;&middot;&nbsp; [Contributing](#-contributing) &nbsp;&middot;&nbsp; [License](#-license)
+- **🧭 About** — [Overview](#-overview) · [Key Features](#-key-features) · [Tech Stack](#️-tech-stack)
+- **🏛️ Design** — [Architecture](#️-architecture) · [Project Structure](#-project-structure) · [Database Schema](#️-database-schema) · [API Reference](#-api-reference)
+- **🚀 Setup** — [Prerequisites](#prerequisites) · [Installation](#installation) · [Environment Config](#environment-configuration) · [Run the App](#running-the-application) · [Admin Setup](#setting-up-admin-access)
+- **📌 More** — [Security](#-security-1) · [Contributing](#-contributing) · [License](#-license)
 
 ---
 
@@ -559,7 +556,7 @@ npm run create-admin -- "<Name>" <email> <password>
 npm run create-admin -- Admin admin@splitsense.com Secret@123
 
 # Create an admin with a full name (use quotes)
-npm run create-admin -- "Parani Dharshan" Parani@example.com MyP@ssword1
+npm run create-admin -- "Parani Dharshan" parani@example.com MyP@ssword1
 
 # Alternative: Run the script directly with Node
 node scripts/create-admin.js "System Admin" admin@site.com Pass1234
@@ -571,7 +568,7 @@ node scripts/create-admin.js "System Admin" admin@site.com Pass1234
   ✔ New admin user created successfully.
 
   Name:   Parani Dharshan
-  Email:  parani@example.com
+  Email:  baran@example.com
   Role:   admin
   ID:     663f...
 ```
