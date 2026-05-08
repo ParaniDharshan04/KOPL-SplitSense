@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 const { successResponse, errorResponse } = require("../utils/apiResponse");
 
+/**
+ * Fetches all notifications for the currently authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getMyNotifications = async (req, res, next) => {
   try {
     const notifications = await Notification.find({ recipient: req.user._id })
@@ -16,6 +22,12 @@ const getMyNotifications = async (req, res, next) => {
   }
 };
 
+/**
+ * Marks a specific notification as read
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const markNotificationRead = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -41,6 +53,12 @@ const markNotificationRead = async (req, res, next) => {
   }
 };
 
+/**
+ * Deletes a specific notification permanently
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const deleteNotification = async (req, res, next) => {
   try {
     const { id } = req.params;

@@ -6,6 +6,11 @@ const RefreshToken = require("../models/RefreshToken");
 const { successResponse, errorResponse } = require("../utils/apiResponse");
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require("../utils/token");
 
+/**
+ * Helper to calculate token expiry date based on JWT payload
+ * @param {string} token - The decoded JWT
+ * @returns {Date} The expiration date
+ */
 const getTokenExpiryDate = (token) => {
   const decoded = jwt.decode(token);
   if (!decoded || !decoded.exp) {
@@ -15,6 +20,12 @@ const getTokenExpiryDate = (token) => {
   return new Date(decoded.exp * 1000);
 };
 
+/**
+ * Registers a new user account and returns auth tokens
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -64,6 +75,12 @@ const register = async (req, res, next) => {
   }
 };
 
+/**
+ * Authenticates a user and returns new access & refresh tokens
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -108,6 +125,12 @@ const login = async (req, res, next) => {
   }
 };
 
+/**
+ * Logs out a user by revoking their refresh token
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -124,6 +147,12 @@ const logout = async (req, res, next) => {
   }
 };
 
+/**
+ * Generates a new access token using a valid refresh token
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;

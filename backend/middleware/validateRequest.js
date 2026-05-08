@@ -2,6 +2,12 @@
 const { validationResult } = require("express-validator");
 const { errorResponse } = require("../utils/apiResponse");
 
+/**
+ * Middleware to format and return express-validator validation errors
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
 

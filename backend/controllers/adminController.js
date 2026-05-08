@@ -8,6 +8,12 @@ const { successResponse, errorResponse } = require("../utils/apiResponse");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Fetches all registered users (Admin only)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find().select("_id name email role createdAt updatedAt").sort({ createdAt: -1 });
@@ -17,6 +23,12 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+/**
+ * Fetches all expenses across all users (Admin only)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getAllExpenses = async (req, res, next) => {
   try {
     const expenses = await Expense.find()
@@ -30,6 +42,13 @@ const getAllExpenses = async (req, res, next) => {
   }
 };
 
+/**
+ * Generates summary statistics for the admin dashboard
+ * Includes user counts, total spends, and top categories
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getAdminSummary = async (req, res, next) => {
   try {
     const [
@@ -117,6 +136,12 @@ const getAdminSummary = async (req, res, next) => {
   }
 };
 
+/**
+ * Deletes a user and all their associated data (expenses, tokens, settlements)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -143,6 +168,12 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+/**
+ * Updates a user's basic information or role
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;

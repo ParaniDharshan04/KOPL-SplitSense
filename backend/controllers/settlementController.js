@@ -5,6 +5,13 @@ const Settlement = require("../models/Settlement");
 const Notification = require("../models/Notification");
 const { successResponse, errorResponse } = require("../utils/apiResponse");
 
+/**
+ * Settles a split for a shared expense. Can be called by the person who owes, 
+ * or the owner (to mark as paid). Generates an Expense for the payer.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const settleSplit = async (req, res, next) => {
   try {
     const { expenseId, splitId } = req.params;
@@ -50,6 +57,17 @@ const settleSplit = async (req, res, next) => {
       settledTo: expense.owner,
       amount: split.amountOwed,
       settledAt: split.settledAt,
+    });
+
+    // Create a personal expense for the person who owed the money so it shows in their dashboard
+    await Expense.create({
+      owner: split.owedBy,
+      title: expense.title,
+      amount: split.amountOwed,
+      category: expense.category,
+      date: split.settledAt,
+      description: `Settled share for shared expense: ${expense.title}`,
+      isShared: false,
     });
 
     const isOwnerSettling = currentUserId === ownerId;

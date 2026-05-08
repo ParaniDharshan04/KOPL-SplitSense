@@ -7,9 +7,19 @@ const { successResponse, errorResponse } = require("../utils/apiResponse");
 const { EXPENSE_CATEGORIES, MAX_AMOUNT } = require("../utils/constants");
 const { calculateEqualSplit, calculateCustomSplit } = require("../utils/splitCalculator");
 
+/**
+ * Checks if a string is a valid MongoDB ObjectId
+ * @param {string} id - The ID to validate
+ * @returns {boolean} True if valid
+ */
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Validates an amount to ensure it is a positive number and within limits
+ * @param {any} amount - The amount to validate
+ * @returns {string|null} Error message or null if valid
+ */
 const validateAmount = (amount) => {
   const num = Number(amount);
 
@@ -28,6 +38,11 @@ const validateAmount = (amount) => {
   return null;
 };
 
+/**
+ * Checks the mandatory fields for an expense record
+ * @param {Object} fields - Object containing title, amount, category
+ * @returns {Object} An object with field-specific error messages, if any
+ */
 const checkExpenseFields = ({ title, amount, category }) => {
   const errors = {};
 
@@ -49,10 +64,21 @@ const checkExpenseFields = ({ title, amount, category }) => {
   return errors;
 };
 
+/**
+ * Helper function to determine if a date is in the future
+ * @param {Date|string} date - Date to check
+ * @returns {boolean} True if the date is in the future
+ */
 const buildFutureFlag = (date) => {
   return new Date(date).getTime() > Date.now();
 };
 
+/**
+ * Creates a new personal expense record
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const createExpense = async (req, res, next) => {
   try {
     const { title, amount, category, date, description } = req.body;
@@ -88,6 +114,12 @@ const createExpense = async (req, res, next) => {
   }
 };
 
+/**
+ * Fetches all personal expenses with optional category and date filtering
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getExpenses = async (req, res, next) => {
   try {
     const { category, startDate, endDate } = req.query;
@@ -119,6 +151,12 @@ const getExpenses = async (req, res, next) => {
   }
 };
 
+/**
+ * Fetches a single expense record by its ID
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getExpenseById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -156,6 +194,12 @@ const getExpenseById = async (req, res, next) => {
   }
 };
 
+/**
+ * Updates an existing personal expense record
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const updateExpense = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -210,6 +254,12 @@ const updateExpense = async (req, res, next) => {
   }
 };
 
+/**
+ * Deletes a specific expense. Soft-deletes if it's a shared expense with settlements.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const deleteExpense = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -264,6 +314,12 @@ const deleteExpense = async (req, res, next) => {
   }
 };
 
+/**
+ * Deletes all personal expenses. Handles soft-deleting of shared expenses.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const deleteAllExpenses = async (req, res, next) => {
   try {
     const expenses = await Expense.find({ owner: req.user._id });
@@ -301,6 +357,12 @@ const deleteAllExpenses = async (req, res, next) => {
   }
 };
 
+/**
+ * Generates an expense summary (total spend, categories, monthly trend) for the dashboard
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getExpenseSummary = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
@@ -381,42 +443,15 @@ const getExpenseSummary = async (req, res, next) => {
           },
         },
       ]),
-      // Calculate total paid by the user to others for shared expenses
-      Expense.aggregate([
-        { 
-          $match: { 
-            isDeleted: { $ne: true }, 
-            isShared: true,
-            owner: { $ne: new mongoose.Types.ObjectId(req.user._id) },
-            ...(match.date ? { date: match.date } : {})
-          } 
-        },
-        { $unwind: "$splitDetails" },
-        {
-          $match: {
-            "splitDetails.isSettled": true,
-            "splitDetails.owedBy": new mongoose.Types.ObjectId(req.user._id),
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalPaidToOthers: { $sum: "$splitDetails.amountOwed" },
-            count: { $sum: 1 }
-          },
-        },
-      ]),
     ]);
 
     const grossSpend = totals.length > 0 ? totals[0].totalSpend : 0;
     const baseCount = totals.length > 0 ? totals[0].count : 0;
     const totalSettledBack = settledBack.length > 0 ? settledBack[0].totalSettledBack : 0;
-    const totalPaidToOthers = paidToOthers.length > 0 ? paidToOthers[0].totalPaidToOthers : 0;
-    const paidToOthersCount = paidToOthers.length > 0 ? paidToOthers[0].count : 0;
 
-    // Net spend = gross spend minus what friends have settled back to you PLUS what you paid to others
-    const totalSpend = Number((grossSpend - totalSettledBack + totalPaidToOthers).toFixed(2));
-    const totalCount = baseCount + paidToOthersCount;
+    // Net spend = gross spend minus what friends have settled back to you
+    const totalSpend = Number((grossSpend - totalSettledBack).toFixed(2));
+    const totalCount = baseCount;
 
     return successResponse(
       res,
@@ -434,6 +469,12 @@ const getExpenseSummary = async (req, res, next) => {
   }
 };
 
+/**
+ * Creates a shared expense and notifies participants. Supports equal or custom splits.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const createSharedExpense = async (req, res, next) => {
   try {
     const { title, amount, category, date, description, splitWith, splitType, customAmounts = {} } = req.body;
@@ -568,6 +609,12 @@ const createSharedExpense = async (req, res, next) => {
   }
 };
 
+/**
+ * Retrieves all pending split amounts that other users owe to the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getOwedToMe = async (req, res, next) => {
   try {
     const expenses = await Expense.find({
@@ -595,6 +642,12 @@ const getOwedToMe = async (req, res, next) => {
   }
 };
 
+/**
+ * Retrieves all pending split amounts that the authenticated user owes to others
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getIOwe = async (req, res, next) => {
   try {
     const expenses = await Expense.find({
@@ -631,6 +684,12 @@ const getIOwe = async (req, res, next) => {
   }
 };
 
+/**
+ * Computes a simplified net balance ledger for the user against all other users
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getBalances = async (req, res, next) => {
   try {
     const expenses = await Expense.find({ isShared: true, isDeleted: { $ne: true } })

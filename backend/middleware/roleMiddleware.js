@@ -1,6 +1,11 @@
 // server/middleware/roleMiddleware.js
 const { errorResponse } = require("../utils/apiResponse");
 
+/**
+ * Middleware to restrict route access to specific user roles
+ * @param {...string} roles - Allowed roles (e.g., 'admin')
+ * @returns {Function} Express middleware function
+ */
 const restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {

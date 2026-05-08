@@ -5,8 +5,18 @@ const { INCOME_CATEGORIES } = require("../models/Income");
 const { successResponse, errorResponse } = require("../utils/apiResponse");
 const { MAX_AMOUNT } = require("../utils/constants");
 
+/**
+ * Checks if a string is a valid MongoDB ObjectId
+ * @param {string} id - The ID to validate
+ * @returns {boolean} True if valid
+ */
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+/**
+ * Validates an amount to ensure it is a positive number and within limits
+ * @param {any} amount - The amount to validate
+ * @returns {string|null} Error message or null if valid
+ */
 const validateAmount = (amount) => {
   const num = Number(amount);
 
@@ -25,6 +35,11 @@ const validateAmount = (amount) => {
   return null;
 };
 
+/**
+ * Checks the mandatory fields for an income record
+ * @param {Object} fields - Object containing title, amount, category
+ * @returns {Object} An object with field-specific error messages, if any
+ */
 const checkIncomeFields = ({ title, amount, category }) => {
   const errors = {};
 
@@ -46,6 +61,12 @@ const checkIncomeFields = ({ title, amount, category }) => {
   return errors;
 };
 
+/**
+ * Creates a new income record for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const createIncome = async (req, res, next) => {
   try {
     const { title, amount, category, date, description } = req.body;
@@ -72,6 +93,12 @@ const createIncome = async (req, res, next) => {
   }
 };
 
+/**
+ * Fetches all income records for the authenticated user, supporting optional filters
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getIncomes = async (req, res, next) => {
   try {
     const { category, startDate, endDate } = req.query;
@@ -103,6 +130,12 @@ const getIncomes = async (req, res, next) => {
   }
 };
 
+/**
+ * Fetches a single income record by its ID
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getIncomeById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -130,6 +163,12 @@ const getIncomeById = async (req, res, next) => {
   }
 };
 
+/**
+ * Updates an existing income record
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const updateIncome = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -172,6 +211,12 @@ const updateIncome = async (req, res, next) => {
   }
 };
 
+/**
+ * Deletes a specific income record (hard delete)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const deleteIncome = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -197,6 +242,12 @@ const deleteIncome = async (req, res, next) => {
   }
 };
 
+/**
+ * Deletes all income records belonging to the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const deleteAllIncomes = async (req, res, next) => {
   try {
     const incomes = await Income.find({ owner: req.user._id });
@@ -209,6 +260,12 @@ const deleteAllIncomes = async (req, res, next) => {
   }
 };
 
+/**
+ * Generates an income summary including total amount, category breakdown, and monthly trend
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 const getIncomeSummary = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
